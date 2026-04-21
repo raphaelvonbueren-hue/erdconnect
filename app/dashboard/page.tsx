@@ -89,7 +89,7 @@ export default async function DashboardPage() {
         <div style={SS}>
           <h2 style={{margin:'0 0 16px',fontSize:18,fontWeight:700}}>Eingehende Anfragen ({incomingRes?.length||0})</h2>
           {(incomingRes||[]).length===0 ? <p style={{color:'#888',textAlign:'center',padding:'24px 0'}}>Keine eingehenden Anfragen</p> : incomingRes?.map((r:Record<string,unknown>)=>{
-            const badge=statusBadge(r.status as string); const listing=r.listings as {title:string,category:string}
+            const badge=statusBadge(r.status as string); const listing=r.listings as {title:string,material:string}
             return (<div key={r.id as string} style={CS}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
                 <div>
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         <div style={SS}>
           <h2 style={{margin:'0 0 16px',fontSize:18,fontWeight:700}}>Meine Anfragen ({outgoingRes?.length||0})</h2>
           {(outgoingRes||[]).length===0 ? <p style={{color:'#888',textAlign:'center',padding:'24px 0'}}>Noch keine Anfragen. <Link href="/" style={{color:'#22c55e'}}>Inserate entdecken</Link></p> : outgoingRes?.map((r:Record<string,unknown>)=>{
-            const badge=statusBadge(r.status as string); const listing=r.listings as {title:string,category:string}
+            const badge=statusBadge(r.status as string); const listing=r.listings as {title:string,material:string}
             return (<div key={r.id as string} style={CS}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div>
