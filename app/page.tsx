@@ -38,9 +38,14 @@ export default async function Home({ searchParams }: Props) {
   if (city)   query = query.ilike('location', `%${city}%`)
   if (minQty) query = query.gte('total_quantity', Number(minQty))
 
-  let { data: listings = [] } = await query
+  const [{ data: listingsRaw = [] }, { data: transportCompanies = [] }] = await Promise.all([
+    query,
+    supabase.from('transport_companies').select('*').eq('active', true),
+  ])
+
+  let listings = listingsRaw ?? []
   if (sort === 'termin')
-    listings = [...(listings || [])].sort((a, b) => availabilityDate(a) - availabilityDate(b))
+    listings = [...listings].sort((a, b) => availabilityDate(a) - availabilityDate(b))
 
   const markers = (listings || [])
     .filter((l) => l.latitude && l.longitude)
@@ -76,6 +81,7 @@ export default async function Home({ searchParams }: Props) {
               listings={listings || []}
               userId={user?.id}
               matColors={MAT_COLORS}
+              transportCompanies={transportCompanies || []}
             />
           </div>
         </div>

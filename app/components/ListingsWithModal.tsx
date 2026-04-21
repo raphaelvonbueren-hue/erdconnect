@@ -3,6 +3,32 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { createReservation } from '@/app/reservations/actions'
 
+type TransportCompany = {
+  id: string
+  name: string
+  description?: string | null
+  email?: string | null
+  phone?: string | null
+  location: string
+  latitude?: number | null
+  longitude?: number | null
+  base_fee: number
+  price_per_km: number
+  min_volume_m3?: number | null
+  max_volume_m3?: number | null
+  materials: string[]
+  active: boolean
+}
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.asin(Math.sqrt(a))
+}
+
 type Listing = {
   id: string
   title: string
@@ -69,8 +95,108 @@ const WINDOW_LABEL: Record<string, string> = {
   nach_absprache: 'Nach Absprache',
 }
 
-function ListingModal({ listing, userId, onClose }: {
-  listing: Listing, userId?: string, onClose: () => void
+function TransportSection({ listing, companies }: { listing: Listing; companies: TransportCompany[] }) {
+  const relevant = companies.filter(c =>
+    c.materials.length === 0 || c.materials.includes(listing.material)
+  )
+  if (relevant.length === 0) return null
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ borderTop: '1px solid #f1f5f9', margin: '0 0 20px' }} />
+      <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>
+        🚛 Transport dazubuchen
+      </h2>
+      <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 14px' }}>
+        Diese Transportunternehmen fahren dieses Material — direkt anfragen.
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {relevant.map(c => {
+          const hasCoords = listing.latitude && listing.longitude && c.latitude && c.longitude
+          const distKm = hasCoords
+            ? Math.round(haversineKm(listing.latitude!, listing.longitude!, c.latitude!, c.longitude!))
+            : null
+          const estimatedCost = distKm != null
+            ? Math.round(c.base_fee + distKm * c.price_per_km)
+            : null
+
+          return (
+            <div key={c.id} style={{
+              border: '1px solid #e2e8f0', borderRadius: 10, overflow: 'hidden',
+              background: '#fff',
+            }}>
+              <div style={{ padding: '14px 16px' }}>
+                {/* Header row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>{c.name}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>📍 {c.location}</div>
+                  </div>
+                  {estimatedCost != null && (
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.04em' }}>ca. Kosten</div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#0f172a' }}>CHF {estimatedCost.toLocaleString('de-CH')}</div>
+                      <div style={{ fontSize: 11, color: '#64748b' }}>für ~{distKm} km</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Pricing pills */}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                  {c.base_fee > 0 && (
+                    <span style={{ background: '#f1f5f9', borderRadius: 6, padding: '4px 10px', fontSize: 12, fontWeight: 600, color: '#374151' }}>
+                      Anfahrt CHF {c.base_fee.toLocaleString('de-CH')}
+                    </span>
+                  )}
+                  <span style={{ background: '#f1f5f9', borderRadius: 6, padding: '4px 10px', fontSize: 12, fontWeight: 600, color: '#374151' }}>
+                    CHF {c.price_per_km.toLocaleString('de-CH')}/km
+                  </span>
+                  {c.min_volume_m3 && (
+                    <span style={{ background: '#fef9c3', borderRadius: 6, padding: '4px 10px', fontSize: 12, fontWeight: 600, color: '#854d0e' }}>
+                      ab {c.min_volume_m3} m³
+                    </span>
+                  )}
+                </div>
+
+                {c.description && (
+                  <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px', lineHeight: 1.5 }}>
+                    {c.description}
+                  </p>
+                )}
+
+                {/* Contact buttons */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {c.phone && (
+                    <a href={`tel:${c.phone}`} style={{
+                      flex: 1, textAlign: 'center', padding: '9px 12px',
+                      background: '#0f172a', color: '#fff', borderRadius: 7,
+                      fontSize: 13, fontWeight: 600, textDecoration: 'none',
+                    }}>
+                      📞 Anrufen
+                    </a>
+                  )}
+                  {c.email && (
+                    <a href={`mailto:${c.email}?subject=Transportanfrage: ${encodeURIComponent(listing.title)}&body=Guten Tag,%0A%0AIch interessiere mich für einen Transport im Zusammenhang mit folgendem Inserat:%0A${listing.title} (${listing.location})%0A%0ABitte melden Sie sich bei mir.%0A%0AFreundliche Grüsse`}
+                      style={{
+                        flex: 1, textAlign: 'center', padding: '9px 12px',
+                        background: '#f1f5f9', color: '#0f172a', borderRadius: 7,
+                        fontSize: 13, fontWeight: 600, textDecoration: 'none', border: '1px solid #e2e8f0',
+                      }}>
+                      ✉ E-Mail
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ListingModal({ listing, userId, onClose, transportCompanies }: {
+  listing: Listing, userId?: string, onClose: () => void, transportCompanies: TransportCompany[]
 }) {
   const isOwner = userId && userId === listing.user_id
   const isSofort = !listing.availability_type || listing.availability_type === 'sofort'
@@ -192,8 +318,8 @@ function ListingModal({ listing, userId, onClose }: {
             ))}
           </div>
 
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid #f1f5f9', margin: '0 0 24px' }} />
+          {/* Transport companies */}
+          <TransportSection listing={listing} companies={transportCompanies} />
 
           {/* Reservation form */}
           {!isOwner && (
@@ -262,8 +388,8 @@ function ListingModal({ listing, userId, onClose }: {
   )
 }
 
-export default function ListingsWithModal({ listings, userId, matColors }: {
-  listings: Listing[], userId?: string, matColors: Record<string, string>
+export default function ListingsWithModal({ listings, userId, matColors, transportCompanies }: {
+  listings: Listing[], userId?: string, matColors: Record<string, string>, transportCompanies: TransportCompany[]
 }) {
   const [selected, setSelected] = useState<Listing | null>(null)
 
@@ -372,7 +498,7 @@ export default function ListingsWithModal({ listings, userId, matColors }: {
         </div>
       )}
 
-      {selected && <ListingModal listing={selected} userId={userId} onClose={close} />}
+      {selected && <ListingModal listing={selected} userId={userId} onClose={close} transportCompanies={transportCompanies} />}
     </>
   )
 }
