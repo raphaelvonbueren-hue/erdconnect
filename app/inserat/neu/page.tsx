@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { createListing } from '@/app/inserat/actions'
 import Link from 'next/link'
+import AvailabilityPicker from '@/app/components/AvailabilityPicker'
 
 const MATERIALS = [
   { value: 'humus',        label: '🌱 Humus / Muttererde' },
@@ -160,6 +161,11 @@ export default async function NeuesInseratPage({
                 </select>
               </div>
             </div>
+          </div>
+
+          <div className="form-section">
+            <h3 className="form-section-title">📅 8. Verfügbarkeit & Abholtermin</h3>
+            <AvailabilityPicker />
           </div>
 
           <div className="form-actions">

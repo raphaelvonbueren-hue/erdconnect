@@ -21,6 +21,8 @@ export async function createListing(formData: FormData) {
   const location = formData.get('location') as string
   const coords = await geocode(location)
 
+  const availType = formData.get('availability_type') as string
+
   const payload = {
     user_id: user.id,
     title: formData.get('title') as string,
@@ -36,6 +38,12 @@ export async function createListing(formData: FormData) {
     longitude: coords?.longitude ?? null,
     access_type: formData.get('access_type') as string,
     loading_type: formData.get('loading_type') as string,
+    availability_type: availType,
+    availability_date_from: availType === 'datum' ? (formData.get('availability_date_from') as string || null) : null,
+    availability_date_to: availType === 'datum' ? (formData.get('availability_date_to') as string || null) : null,
+    availability_quarter_from: availType === 'quartal' ? (formData.get('availability_quarter_from') as string || null) : null,
+    availability_quarter_to: availType === 'quartal' ? (formData.get('availability_quarter_to') as string || null) : null,
+    availability_window: formData.get('availability_window') as string,
     status: 'active',
   }
 

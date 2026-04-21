@@ -62,6 +62,36 @@ export default async function ListingDetailPage({ params }: Props) {
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, background: '#f8fafc', borderRadius: 8, padding: 20, marginBottom: 24 }}>
+          <div style={{ gridColumn: '1 / -1', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 16px' }}>
+            <strong style={{ color: '#888', fontSize: 12, textTransform: 'uppercase' }}>Verfügbarkeit</strong>
+            <div style={{ fontWeight: 600, fontSize: 15, marginTop: 4 }}>
+              {listing.availability_type === 'sofort' && '⚡ Ab sofort verfügbar'}
+              {listing.availability_type === 'datum' && (
+                <>
+                  📅 {listing.availability_date_from ? new Date(listing.availability_date_from).toLocaleDateString('de-CH') : '—'}
+                  {listing.availability_date_to && ` bis ${new Date(listing.availability_date_to).toLocaleDateString('de-CH')}`}
+                </>
+              )}
+              {listing.availability_type === 'quartal' && (
+                <>
+                  🗓️ {listing.availability_quarter_from}
+                  {listing.availability_quarter_to && listing.availability_quarter_to !== listing.availability_quarter_from
+                    ? ` bis ${listing.availability_quarter_to}` : ''}
+                </>
+              )}
+              {!listing.availability_type && '—'}
+            </div>
+            {listing.availability_window && (
+              <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>
+                Zeitfenster: {{
+                  ganzer_tag: 'Ganzer Tag (flexibel)',
+                  morgens: 'Morgens (7–12 Uhr)',
+                  nachmittags: 'Nachmittags (12–17 Uhr)',
+                  nach_absprache: 'Nach Absprache',
+                }[listing.availability_window as string] ?? listing.availability_window}
+              </div>
+            )}
+          </div>
           {listing.access_type && (
             <div>
               <strong style={{ color: '#888', fontSize: 12, textTransform: 'uppercase' }}>Zufahrt</strong>
