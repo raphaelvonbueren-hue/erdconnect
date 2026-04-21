@@ -48,6 +48,14 @@ export default async function Home({ searchParams }: Props) {
       id: l.id, lat: l.latitude, lng: l.longitude,
       title: l.title, category: l.material,
       color: MAT_COLORS[l.material] || '#94a3b8',
+      location: l.location || '',
+      total_quantity: l.total_quantity ?? null,
+      price: l.price ?? null,
+      unit: l.unit || 'm³',
+      type: l.type || 'offer',
+      availability_type: l.availability_type || null,
+      availability_date_from: l.availability_date_from || null,
+      availability_quarter_from: l.availability_quarter_from || null,
     }))
 
   return (
