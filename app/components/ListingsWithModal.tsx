@@ -33,6 +33,15 @@ const MAT_COLORS: Record<string, string> = {
   gruenmaterial: '#34d399', beton: '#94a3b8', andere: '#64748b',
 }
 
+const MAT_LABELS: Record<string, string> = {
+  humus: 'Humus / Muttererde',
+  aushub: 'Aushub / Erdmaterial',
+  kies: 'Kies / Schotter',
+  gruenmaterial: 'Grünmaterial / Holz',
+  beton: 'Betonabbruch',
+  andere: 'Andere',
+}
+
 const QUARTER_MONTH: Record<string, number> = { Q1: 0, Q2: 3, Q3: 6, Q4: 9 }
 
 function availLabel(l: Listing): string {
@@ -265,66 +274,94 @@ export default function ListingsWithModal({ listings, userId, matColors }: {
       {listings.map((l) => {
         const isSofort = !l.availability_type || l.availability_type === 'sofort'
         const avail = availLabel(l)
-        const color = matColors[l.material as string] || '#94a3b8'
+        const color = matColors[l.material] || '#94a3b8'
+        const isOffer = l.type === 'offer'
+
         return (
-          <div key={l.id as string}
+          <div key={l.id}
             onClick={() => setSelected(l)}
             style={{
-              background: '#fff', borderRadius: 10, padding: '14px 16px', marginBottom: 10,
-              boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-              borderLeft: `4px solid ${color}`,
+              background: '#fff', borderRadius: 12, marginBottom: 10,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
+              border: '1px solid #e8edf2',
               cursor: 'pointer', transition: 'box-shadow 0.12s, transform 0.12s',
+              overflow: 'hidden',
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'
-              ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)'
+              (e.currentTarget as HTMLDivElement).style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)'
+              ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLDivElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'
+              (e.currentTarget as HTMLDivElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.07)'
               ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <span style={{ background: color, color: '#fff', borderRadius: 5, padding: '2px 8px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>
-                  {l.material as string}
-                </span>
-                <span style={{
-                  background: l.type === 'offer' ? '#dcfce7' : '#fef3c7',
-                  color: l.type === 'offer' ? '#166534' : '#92400e',
-                  borderRadius: 5, padding: '2px 8px', fontSize: 10, fontWeight: 600,
-                }}>{l.type === 'offer' ? 'Angebot' : 'Gesuch'}</span>
+            {/* Coloured top bar */}
+            <div style={{ height: 4, background: color }} />
+
+            <div style={{ padding: '14px 16px' }}>
+              {/* Row 1: Material label + type + availability */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span style={{
+                    background: `${color}22`, color: color === '#4ade80' ? '#166534' : color === '#a78bfa' ? '#5b21b6' : color === '#fb923c' ? '#9a3412' : color === '#34d399' ? '#065f46' : '#374151',
+                    borderRadius: 6, padding: '3px 9px', fontSize: 11, fontWeight: 700,
+                  }}>
+                    {MAT_LABELS[l.material] || l.material}
+                  </span>
+                  <span style={{
+                    background: isOffer ? '#dcfce7' : '#fef9c3',
+                    color: isOffer ? '#166534' : '#854d0e',
+                    borderRadius: 6, padding: '3px 9px', fontSize: 11, fontWeight: 600,
+                  }}>
+                    {isOffer ? 'Angebot' : 'Gesuch'}
+                  </span>
+                </div>
+                {avail && (
+                  <span style={{
+                    fontSize: 11, fontWeight: 600,
+                    color: isSofort ? '#15803d' : '#64748b',
+                    background: isSofort ? '#f0fdf4' : '#f8fafc',
+                    border: `1px solid ${isSofort ? '#bbf7d0' : '#e2e8f0'}`,
+                    borderRadius: 6, padding: '3px 8px', whiteSpace: 'nowrap',
+                  }}>
+                    {isSofort ? '⚡ ' : '📅 '}{avail}
+                  </span>
+                )}
               </div>
-              {avail && (
-                <span style={{
-                  fontSize: 11, fontWeight: 600,
-                  color: isSofort ? '#15803d' : '#374151',
-                  background: isSofort ? '#f0fdf4' : '#f8fafc',
-                  border: `1px solid ${isSofort ? '#bbf7d0' : '#e2e8f0'}`,
-                  borderRadius: 5, padding: '2px 7px', whiteSpace: 'nowrap',
-                }}>
-                  {isSofort ? '⚡ ' : '📅 '}{avail}
-                </span>
+
+              {/* Row 2: Title */}
+              <h3 style={{ fontWeight: 700, fontSize: 15, margin: '0 0 12px', color: '#0f172a', lineHeight: 1.35 }}>
+                {l.title}
+              </h3>
+
+              {/* Row 3: Stat blocks */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: l.description ? 10 : 0 }}>
+                <div style={{ background: '#f8fafc', borderRadius: 8, padding: '8px 10px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Menge</div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>{l.total_quantity} <span style={{ fontSize: 11, fontWeight: 500, color: '#64748b' }}>m³</span></div>
+                </div>
+                <div style={{ background: '#f8fafc', borderRadius: 8, padding: '8px 10px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Standort</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {l.location || '—'}
+                  </div>
+                </div>
+                <div style={{ background: l.price > 0 ? '#f8fafc' : '#f0fdf4', borderRadius: 8, padding: '8px 10px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Preis</div>
+                  {l.price > 0
+                    ? <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>CHF {l.price}<span style={{ fontSize: 10, fontWeight: 400 }}>/m³</span></div>
+                    : <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d' }}>Gratis</div>}
+                </div>
+              </div>
+
+              {/* Row 4: Description snippet */}
+              {!!l.description && (
+                <p style={{ fontSize: 12, color: '#64748b', margin: '0', lineHeight: 1.5 }}>
+                  {l.description.length > 90 ? l.description.slice(0, 90) + '…' : l.description}
+                </p>
               )}
             </div>
-
-            <h3 style={{ fontWeight: 700, fontSize: 15, margin: '0 0 5px', color: '#111' }}>{l.title as string}</h3>
-
-            <div style={{ display: 'flex', gap: 12, fontSize: 13, color: '#666', marginBottom: l.description ? 8 : 0, flexWrap: 'wrap' }}>
-              <span>📍 {l.location as string || 'Unbekannt'}</span>
-              <span>📦 {l.total_quantity as number} m³</span>
-              {(l.price as number) > 0
-                ? <span>CHF {l.price as number}/m³</span>
-                : <span style={{ color: '#15803d' }}>Gratis</span>}
-            </div>
-
-            {!!l.description && (
-              <p style={{ fontSize: 13, color: '#555', margin: '0', lineHeight: 1.5 }}>
-                {(l.description as string).length > 80
-                  ? (l.description as string).slice(0, 80) + '…'
-                  : String(l.description)}
-              </p>
-            )}
           </div>
         )
       })}
