@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { createListing } from '@/app/inserat/actions'
 import Link from 'next/link'
@@ -55,12 +55,12 @@ export default async function NeuesInseratPage({
             <h3 className="form-section-title">📝 1. Typ des Inserats</h3>
             <div style={{ display:'flex', gap:12 }}>
               <label className="radio-card">
-                <input type="radio" name="listing_type" value="angebot" defaultChecked />
+                <input type="radio" name="type" value="offer" defaultChecked />
                 <span>📤 Angebot</span>
                 <small>Ich habe Material zu vergeben</small>
               </label>
               <label className="radio-card">
-                <input type="radio" name="listing_type" value="gesuch" />
+                <input type="radio" name="type" value="request" />
                 <span>📥 Gesuch</span>
                 <small>Ich suche Material</small>
               </label>
@@ -72,7 +72,7 @@ export default async function NeuesInseratPage({
             <div className="material-grid">
               {MATERIALS.map(m => (
                 <label key={m.value} className="material-card">
-                  <input type="radio" name="material_type" value={m.value} defaultChecked={m.value === 'humus'} />
+                  <input type="radio" name="material" value={m.value} defaultChecked={m.value === 'humus'} />
                   <span>{m.label}</span>
                 </label>
               ))}

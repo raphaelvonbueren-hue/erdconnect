@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { deleteListing } from '@/app/inserat/actions'
 import { updateReservationStatus } from '@/app/reservations/actions'
+import { signOut } from '@/app/auth/actions'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -41,7 +42,10 @@ export default async function DashboardPage() {
       <div style={{background:'#fff',borderBottom:'1px solid #e2e8f0',padding:'0 32px'}}>
         <div style={{maxWidth:1000,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between',height:64}}>
           <Link href="/" style={{fontWeight:800,fontSize:20,color:'#111',textDecoration:'none'}}>ErdConnect</Link>
-          <Link href="/inserat/neu" style={{background:'#22c55e',color:'#fff',borderRadius:8,padding:'8px 18px',textDecoration:'none',fontWeight:600,fontSize:14}}>+ Inserat</Link>
+          <div style={{display:'flex',gap:12,alignItems:'center'}}>
+            <Link href="/inserat/neu" style={{background:'#22c55e',color:'#fff',borderRadius:8,padding:'8px 18px',textDecoration:'none',fontWeight:600,fontSize:14}}>+ Inserat</Link>
+            <form action={signOut}><button type="submit" style={{background:'#f1f5f9',color:'#555',border:'1px solid #e2e8f0',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:14,fontWeight:600}}>Logout</button></form>
+          </div>
         </div>
       </div>
       <div style={{maxWidth:1000,margin:'0 auto',padding:'32px 16px'}}>

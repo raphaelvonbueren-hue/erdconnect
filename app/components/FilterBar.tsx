@@ -38,9 +38,12 @@ export default function FilterBar() {
         <label style={labelStyle}>Kategorie</label>
         <select value={state.category} onChange={e => update({ category: e.target.value })} style={inputStyle}>
           <option value="">Alle</option>
-          <option value="humus">Humus</option>
-          <option value="aushub">Aushub</option>
-          <option value="kies">Kies</option>
+          <option value="humus">Humus / Muttererde</option>
+          <option value="aushub">Aushub / Erdmaterial</option>
+          <option value="kies">Kies / Schotter</option>
+          <option value="gruenmaterial">Grünmaterial / Holz</option>
+          <option value="beton">Betonabbruch</option>
+          <option value="andere">Andere</option>
         </select>
       </div>
       <div style={groupStyle}>
