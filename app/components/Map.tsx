@@ -24,56 +24,43 @@ function availabilityLabel(m: Marker): string {
   return ''
 }
 
-function buildPopup(m: Marker): string {
+function buildPopupNode(m: Marker, L: any): HTMLElement {
   const matLabel = MAT_LABELS[m.category] || m.category
   const typeLabel = m.type === 'request' ? 'Gesuch' : 'Angebot'
   const typeBg = m.type === 'request' ? '#ede9fe' : '#dcfce7'
   const typeColor = m.type === 'request' ? '#7c3aed' : '#15803d'
   const qty = m.total_quantity != null ? `${m.total_quantity} ${m.unit}` : '–'
-  const price = m.price != null && m.price > 0
+  const priceText = m.price != null && m.price > 0
     ? `CHF ${m.price.toLocaleString('de-CH')}`
-    : '<span style="color:#16a34a;font-weight:600">Gratis</span>'
+    : 'Gratis'
+  const priceColor = m.price != null && m.price > 0 ? '#0f172a' : '#16a34a'
   const avail = availabilityLabel(m)
 
-  return `<div style="font-family:system-ui,sans-serif;min-width:260px">
-  <div style="height:4px;background:${m.color};width:100%;margin:-1px 0 12px 0;border-radius:2px 2px 0 0"></div>
-  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-    <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:${typeBg};color:${typeColor};white-space:nowrap">${typeLabel}</span>
-    <span style="font-size:11px;color:#64748b;font-weight:500">${matLabel}</span>
-  </div>
-  <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:10px;line-height:1.3">${m.title}</div>
-  <div style="display:flex;gap:8px;margin-bottom:10px">
-    <div style="flex:1;background:#f8fafc;border-radius:7px;padding:8px 10px">
-      <div style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Menge</div>
-      <div style="font-size:15px;font-weight:700;color:#0f172a">${qty}</div>
+  const div = L.DomUtil.create('div')
+  div.style.cssText = 'font-family:system-ui,sans-serif;width:280px'
+  div.innerHTML = `
+    <div style="height:4px;background:${m.color};border-radius:2px;margin-bottom:12px"></div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+      <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:${typeBg};color:${typeColor}">${typeLabel}</span>
+      <span style="font-size:11px;color:#64748b;font-weight:500">${matLabel}</span>
     </div>
-    <div style="flex:1;background:#f8fafc;border-radius:7px;padding:8px 10px">
-      <div style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Preis</div>
-      <div style="font-size:14px;font-weight:700;color:#0f172a">${price}</div>
+    <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:10px;line-height:1.35;white-space:normal">${m.title}</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <div style="flex:1;background:#f8fafc;border-radius:7px;padding:8px 10px;min-width:0">
+        <div style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Menge</div>
+        <div style="font-size:15px;font-weight:700;color:#0f172a;white-space:normal">${qty}</div>
+      </div>
+      <div style="flex:1;background:#f8fafc;border-radius:7px;padding:8px 10px;min-width:0">
+        <div style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Preis</div>
+        <div style="font-size:14px;font-weight:700;color:${priceColor};white-space:normal">${priceText}</div>
+      </div>
     </div>
-  </div>
-  ${m.location ? `<div style="font-size:12px;color:#475569;margin-bottom:5px">📍 ${m.location}</div>` : ''}
-  ${avail ? `<div style="font-size:12px;color:#475569;margin-bottom:10px">${avail}</div>` : '<div style="margin-bottom:10px"></div>'}
-  <a href="/listing/${m.id}" style="display:block;text-align:center;background:#0f172a;color:#fff;font-size:13px;font-weight:600;padding:9px;border-radius:7px;text-decoration:none">Details ansehen →</a>
-</div>`
+    ${m.location ? `<div style="font-size:12px;color:#475569;margin-bottom:5px;white-space:normal">📍 ${m.location}</div>` : ''}
+    ${avail ? `<div style="font-size:12px;color:#475569;margin-bottom:12px;white-space:normal">${avail}</div>` : '<div style="margin-bottom:12px"></div>'}
+    <a href="/listing/${m.id}" style="display:block;text-align:center;background:#0f172a;color:#fff;font-size:13px;font-weight:600;padding:9px 12px;border-radius:7px;text-decoration:none;cursor:pointer">Details ansehen →</a>
+  `
+  return div
 }
-
-const POPUP_STYLE = `
-  .ec-popup .leaflet-popup-content-wrapper {
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-    overflow: hidden;
-    min-width: 280px;
-  }
-  .ec-popup .leaflet-popup-content {
-    margin: 0;
-    width: auto !important;
-  }
-  .ec-popup .leaflet-popup-tip-container {
-    margin-top: -1px;
-  }
-`
 
 function addMarkers(L: any, map: any, markers: Marker[]) {
   markers.forEach(m => {
@@ -83,7 +70,7 @@ function addMarkers(L: any, map: any, markers: Marker[]) {
     })
     L.marker([m.lat, m.lng], { icon })
       .addTo(map)
-      .bindPopup(buildPopup(m), { maxWidth: 340, className: 'ec-popup' })
+      .bindPopup(() => buildPopupNode(m, L), { minWidth: 280, maxWidth: 300 })
   })
 }
 
@@ -101,14 +88,6 @@ export default function Map({ markers }: { markers: Marker[] }) {
       })
       addMarkers(L, mapRef.current, markers)
       return
-    }
-
-    // Inject popup styles once
-    if (!document.getElementById('ec-popup-style')) {
-      const style = document.createElement('style')
-      style.id = 'ec-popup-style'
-      style.textContent = POPUP_STYLE
-      document.head.appendChild(style)
     }
 
     const L = require('leaflet')
