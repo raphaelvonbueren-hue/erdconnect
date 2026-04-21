@@ -36,7 +36,7 @@ function buildPopup(m: Marker): string {
   const avail = availabilityLabel(m)
 
   return `
-<div style="font-family:system-ui,sans-serif;width:240px;overflow:hidden;border-radius:10px;margin:-14px -20px -14px -20px">
+<div style="font-family:system-ui,sans-serif;width:280px;overflow:hidden;border-radius:10px;margin:-14px -20px -14px -20px">
   <div style="height:4px;background:${m.color};width:100%"></div>
   <div style="padding:14px 16px 16px">
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
@@ -69,7 +69,7 @@ function addMarkers(L: any, map: any, markers: Marker[]) {
     })
     L.marker([m.lat, m.lng], { icon })
       .addTo(map)
-      .bindPopup(buildPopup(m), { maxWidth: 260, className: 'ec-popup' })
+      .bindPopup(buildPopup(m), { maxWidth: 320, className: 'ec-popup' })
   })
 }
 
