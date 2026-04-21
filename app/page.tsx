@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import Header from './components/Header'
 import FilterBar from './components/FilterBar'
@@ -18,8 +18,8 @@ export default async function Home({ searchParams }: Props) {
 
   const { data: listings = [] } = await query
   const categoryColors: Record<string, string> = { humus: '#4ade80', aushub: '#a78bfa', kies: '#fb923c' }
-  const markers = (listings || []).filter((l) => l.lat && l.lng).map((l) => ({
-    id: l.id, lat: l.lat, lng: l.lng, title: l.title, category: l.category, color: categoryColors[l.category] || '#94a3b8',
+  const markers = (listings || []).filter((l) => l.latitude && l.longitude).map((l) => ({
+    id: l.id, lat: l.latitude, lng: l.longitude, title: l.title, category: l.category, color: categoryColors[l.category] || '#94a3b8',
   }))
 
   return (
