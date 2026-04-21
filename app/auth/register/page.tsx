@@ -3,6 +3,7 @@ import { signUp } from '@/app/auth/actions'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
+import Logo from '@/app/components/Logo'
 
 function RegisterForm() {
   const searchParams = useSearchParams()
@@ -11,6 +12,12 @@ function RegisterForm() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <div className="auth-logo">
+          <Logo size={48} />
+          <div className="auth-wordmark">
+            <span className="wordmark-erd">Erd</span><span className="wordmark-connect">Connect</span>
+          </div>
+        </div>
         <h1>Konto erstellen</h1>
         <p className="auth-sub">Starte auf ErdConnect</p>
         {error && <div className="auth-error">{decodeURIComponent(error)}</div>}

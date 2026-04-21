@@ -1,12 +1,18 @@
 import { signIn } from '@/app/auth/actions'
 import Link from 'next/link'
+import Logo from '@/app/components/Logo'
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const params = await searchParams
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-logo">🌍</div>
+        <div className="auth-logo">
+          <Logo size={48} />
+          <div className="auth-wordmark">
+            <span className="wordmark-erd">Erd</span><span className="wordmark-connect">Connect</span>
+          </div>
+        </div>
         <h1>Willkommen zurück</h1>
         <p className="auth-sub">Melde dich bei ErdConnect an</p>
         {params.error && <div className="auth-error">⚠️ {decodeURIComponent(params.error)}</div>}
