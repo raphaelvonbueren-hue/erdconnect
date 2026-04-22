@@ -45,6 +45,7 @@ export async function createListing(formData: FormData) {
     longitude: coords?.longitude ?? null,
     access_type: formData.get('access_type') as string,
     loading_type: formData.get('loading_type') as string,
+    loading_cost_per_m3: formData.get('loading_cost_per_m3') !== '' ? Number(formData.get('loading_cost_per_m3') ?? null) : null,
     availability_type: availType,
     availability_date_from: availType === 'datum' ? (formData.get('availability_date_from') as string || null) : null,
     availability_date_to: availType === 'datum' ? (formData.get('availability_date_to') as string || null) : null,

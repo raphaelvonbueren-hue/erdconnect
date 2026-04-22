@@ -4,6 +4,7 @@ import { createListing } from '@/app/inserat/actions'
 import Link from 'next/link'
 import AvailabilityPicker from '@/app/components/AvailabilityPicker'
 import QuantityPicker from '@/app/components/QuantityPicker'
+import LoadingPicker from '@/app/components/LoadingPicker'
 import Header from '@/app/components/Header'
 
 const MATERIALS = [
@@ -120,7 +121,7 @@ export default async function NeuesInseratPage({
 
           <div className="form-section">
             <h3 className="form-section-title">🚛 7. Logistik</h3>
-            <div className="form-row">
+            <div className="form-row" style={{ marginBottom: 16 }}>
               <div className="form-group" style={{ flex:1 }}>
                 <label>Zufahrt zum Standort</label>
                 <select name="access_type">
@@ -129,15 +130,8 @@ export default async function NeuesInseratPage({
                   <option value="keine">Keine direkte Zufahrt</option>
                 </select>
               </div>
-              <div className="form-group" style={{ flex:1 }}>
-                <label>Verlademöglichkeit</label>
-                <select name="loading_type">
-                  <option value="selbstverlad">Selbstverlad</option>
-                  <option value="maschinenverlad">Maschinenverlad vorhanden</option>
-                  <option value="gratis_verlad">Verlad inklusive (gratis)</option>
-                </select>
-              </div>
             </div>
+            <LoadingPicker />
           </div>
 
           <div className="form-section">

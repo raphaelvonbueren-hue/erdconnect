@@ -79,6 +79,7 @@ type Listing = {
   availability_window?: string | null
   access_type?: string | null
   loading_type?: string | null
+  loading_cost_per_m3?: number | null
   unit?: string | null
   created_at: string
   user_id: string
@@ -436,7 +437,11 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
             {([
               listing.access_type  ? ['Zufahrt',  String(listing.access_type)]  : null,
-              listing.loading_type ? ['Verlad',   String(listing.loading_type)] : null,
+              listing.loading_type ? ['Verlad',   String(listing.loading_type) + (
+                listing.loading_type === 'maschinenverlad' && listing.loading_cost_per_m3 != null
+                  ? (listing.loading_cost_per_m3 === 0 ? ' (gratis)' : ` · CHF ${listing.loading_cost_per_m3}/m³`)
+                  : ''
+              )] : null,
               listing.unit         ? ['Einheit',  String(listing.unit)]         : null,
               listing.created_at   ? ['Erstellt', new Date(listing.created_at as string).toLocaleDateString('de-CH')] : null,
             ] as ([string, string] | null)[]).filter((x): x is [string, string] => x !== null).map(([label, val]) => (
@@ -618,6 +623,13 @@ export default function ListingsWithModal({ listings, userId, matColors, transpo
                   {l.price > 0
                     ? <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>CHF {l.price}<span style={{ fontSize: 10, fontWeight: 400 }}>/m³</span></div>
                     : <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d' }}>Gratis</div>}
+                  {l.loading_type === 'maschinenverlad' && l.loading_cost_per_m3 != null && (
+                    <div style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>
+                      {l.loading_cost_per_m3 === 0
+                        ? '🏗️ Verlad gratis'
+                        : `🏗️ +CHF ${l.loading_cost_per_m3}/m³ Verlad`}
+                    </div>
+                  )}
                 </div>
               </div>
 
