@@ -7,9 +7,15 @@ const inp: React.CSSProperties = {
 }
 const lbl: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }
 
-export default function LoadingPicker() {
-  const [loadingType, setLoadingType] = useState('selbstverlad')
-  const [isFree, setIsFree] = useState(true)
+export default function LoadingPicker({
+  defaultLoadingType = 'selbstverlad',
+  defaultCost,
+}: {
+  defaultLoadingType?: string
+  defaultCost?: number | null
+}) {
+  const [loadingType, setLoadingType] = useState(defaultLoadingType)
+  const [isFree, setIsFree] = useState(defaultCost == null || defaultCost === 0)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -67,6 +73,7 @@ export default function LoadingPicker() {
                   min="0"
                   step="0.5"
                   required
+                  defaultValue={defaultCost && defaultCost > 0 ? defaultCost : undefined}
                   placeholder="z.B. 8.00"
                   style={{ ...inp, maxWidth: 180 }}
                 />

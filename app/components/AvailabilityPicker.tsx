@@ -14,8 +14,24 @@ const labelStyle: React.CSSProperties = {
   display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6,
 }
 
-export default function AvailabilityPicker() {
-  const [type, setType] = useState<'sofort' | 'datum' | 'quartal'>('sofort')
+type Props = {
+  defaultType?: 'sofort' | 'datum' | 'quartal'
+  defaultDateFrom?: string
+  defaultDateTo?: string
+  defaultQuarterFrom?: string
+  defaultQuarterTo?: string
+  defaultWindow?: string
+}
+
+export default function AvailabilityPicker({
+  defaultType = 'sofort',
+  defaultDateFrom = '',
+  defaultDateTo = '',
+  defaultQuarterFrom = '',
+  defaultQuarterTo = '',
+  defaultWindow = '',
+}: Props) {
+  const [type, setType] = useState<'sofort' | 'datum' | 'quartal'>(defaultType)
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
     flex: 1, padding: '10px 0', border: '1px solid', textAlign: 'center',
@@ -50,14 +66,14 @@ export default function AvailabilityPicker() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
           <div>
             <label style={labelStyle}>Verfügbar ab <span style={{ color: '#ef4444' }}>*</span></label>
-            <input type="date" name="availability_date_from" required style={inputStyle} />
+            <input type="date" name="availability_date_from" required style={inputStyle} defaultValue={defaultDateFrom} />
             <span style={{ fontSize: 12, color: '#888', marginTop: 4, display: 'block' }}>
               Frühester Abholtermin
             </span>
           </div>
           <div>
             <label style={labelStyle}>Verfügbar bis <span style={{ color: '#6b7280', fontWeight: 400 }}>(optional)</span></label>
-            <input type="date" name="availability_date_to" style={inputStyle} />
+            <input type="date" name="availability_date_to" style={inputStyle} defaultValue={defaultDateTo} />
             <span style={{ fontSize: 12, color: '#888', marginTop: 4, display: 'block' }}>
               Letzter Abholtermin
             </span>
@@ -69,14 +85,14 @@ export default function AvailabilityPicker() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
           <div>
             <label style={labelStyle}>Quartal von <span style={{ color: '#ef4444' }}>*</span></label>
-            <select name="availability_quarter_from" required style={inputStyle}>
+            <select name="availability_quarter_from" required style={inputStyle} defaultValue={defaultQuarterFrom}>
               <option value="">— wählen —</option>
               {QUARTERS.map(q => <option key={q} value={q}>{q}</option>)}
             </select>
           </div>
           <div>
             <label style={labelStyle}>Quartal bis <span style={{ color: '#6b7280', fontWeight: 400 }}>(optional)</span></label>
-            <select name="availability_quarter_to" style={inputStyle}>
+            <select name="availability_quarter_to" style={inputStyle} defaultValue={defaultQuarterTo}>
               <option value="">Gleich wie «von»</option>
               {QUARTERS.map(q => <option key={q} value={q}>{q}</option>)}
             </select>
@@ -101,6 +117,7 @@ export default function AvailabilityPicker() {
               background: '#fff', fontSize: 14,
             }}>
               <input type="checkbox" name="availability_window" value={opt.value}
+                defaultChecked={defaultWindow.split(',').includes(opt.value)}
                 style={{ accentColor: '#22c55e', width: 16, height: 16 }} />
               {opt.label}
             </label>

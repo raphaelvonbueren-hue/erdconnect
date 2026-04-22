@@ -79,7 +79,8 @@ export default async function DashboardPage() {
                 </div>
                 <div style={{display:'flex',gap:8,alignItems:'center'}}>
                   <Link href={`/listing/${l.id}`} style={{color:'#3b82f6',fontSize:13,textDecoration:'none',fontWeight:600}}>Anzeigen</Link>
-                  <form action={handleDelete}><input type="hidden" name="listingId" value={l.id}/><button type="submit" style={{background:'#fee2e2',color:'#dc2626',border:'none',borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12,fontWeight:600}}>Loeschen</button></form>
+                  <Link href={`/inserat/${l.id}/bearbeiten`} style={{background:'#f1f5f9',color:'#374151',border:'1px solid #e2e8f0',borderRadius:6,padding:'4px 12px',fontSize:12,fontWeight:600,textDecoration:'none'}}>✏️ Bearbeiten</Link>
+                  <form action={handleDelete}><input type="hidden" name="listingId" value={l.id}/><button type="submit" style={{background:'#fee2e2',color:'#dc2626',border:'none',borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12,fontWeight:600}}>Löschen</button></form>
                 </div>
               </div>
             </div>

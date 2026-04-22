@@ -40,12 +40,12 @@ const lbl: React.CSSProperties = { display: 'block', fontSize: 12, fontWeight: 6
 
 function round1(n: number) { return Math.round(n * 10) / 10 }
 
-export default function QuantityPicker() {
+export default function QuantityPicker({ defaultQuantity }: { defaultQuantity?: number }) {
   const [mode,  setMode]  = useState<Mode>('direkt')
   const [state, setState] = useState<State>('fest')
   const [material, setMaterial] = useState<MatKey>('humus')
 
-  const [m3Direct, setM3Direct] = useState('')
+  const [m3Direct, setM3Direct] = useState(defaultQuantity ? String(defaultQuantity) : '')
   const [m2,       setM2]       = useState('')
   const [dicke,    setDicke]    = useState('')
 
