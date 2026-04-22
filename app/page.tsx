@@ -38,15 +38,29 @@ export default async function Home({ searchParams }: Props) {
   if (city)   query = query.ilike('location', `%${city}%`)
   if (minQty) query = query.gte('total_quantity', Number(minQty))
 
-  const [{ data: listingsRaw = [] }, { data: transportCompanies = [] }, { data: profiles = [] }] = await Promise.all([
+  const [{ data: listingsRaw = [] }, { data: transportCompanies = [] }, { data: profiles = [] }, { data: reservations = [] }] = await Promise.all([
     query,
     supabase.from('transport_companies').select('*').eq('active', true),
     supabase.from('profiles').select('id, is_premium'),
+    supabase.from('reservations').select('listing_id, quantity_reserved').in('status', ['pending', 'accepted']),
   ])
 
   const premiumIds = new Set((profiles ?? []).filter(p => p.is_premium).map(p => p.id))
 
-  let listings = (listingsRaw ?? []).map(l => ({ ...l, is_premium: premiumIds.has(l.user_id) }))
+  const reservedMap = new Map<string, number>()
+  for (const r of reservations ?? []) {
+    reservedMap.set(r.listing_id, (reservedMap.get(r.listing_id) ?? 0) + (r.quantity_reserved ?? 0))
+  }
+
+  let listings = (listingsRaw ?? []).map(l => {
+    const reserved = reservedMap.get(l.id) ?? 0
+    return {
+      ...l,
+      is_premium: premiumIds.has(l.user_id),
+      reserved_quantity: reserved,
+      available_quantity: Math.max(0, (l.total_quantity ?? 0) - reserved),
+    }
+  })
   if (sort === 'termin')
     listings = [...listings].sort((a, b) => availabilityDate(a) - availabilityDate(b))
 

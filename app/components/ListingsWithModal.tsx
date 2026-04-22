@@ -86,6 +86,8 @@ type Listing = {
   longitude?: number | null
   status?: string
   is_premium?: boolean
+  reserved_quantity?: number
+  available_quantity?: number
 }
 
 const MAT_COLORS: Record<string, string> = {
@@ -327,11 +329,45 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
           {/* Key facts row */}
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', margin: '14px 0', fontSize: 14, color: '#555' }}>
             <span>📍 {listing.location as string}</span>
-            <span>📦 {listing.total_quantity as number} m³</span>
             {(listing.price as number) > 0
               ? <span style={{ fontWeight: 600, color: '#0f172a' }}>CHF {listing.price as number}/m³</span>
               : <span style={{ color: '#15803d', fontWeight: 600 }}>🤝 Gratis</span>}
           </div>
+
+          {/* Availability quantity block */}
+          {(() => {
+            const total    = listing.total_quantity as number
+            const reserved = listing.reserved_quantity ?? 0
+            const avail    = listing.available_quantity ?? total
+            const pct      = total > 0 ? Math.round((avail / total) * 100) : 100
+            const barColor = pct > 50 ? '#22c55e' : pct > 20 ? '#f59e0b' : '#ef4444'
+            return (
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em' }}>Verfügbare Menge</span>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{pct}% verfügbar</span>
+                </div>
+                {/* Progress bar */}
+                <div style={{ height: 8, background: '#e2e8f0', borderRadius: 99, marginBottom: 10, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${pct}%`, background: barColor, borderRadius: 99, transition: 'width .3s' }} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                  <div style={{ textAlign: 'center' as const }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: barColor }}>{avail}</div>
+                    <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Verfügbar (m³)</div>
+                  </div>
+                  <div style={{ textAlign: 'center' as const }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#f59e0b' }}>{reserved}</div>
+                    <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Reserviert (m³)</div>
+                  </div>
+                  <div style={{ textAlign: 'center' as const }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#0f172a' }}>{total}</div>
+                    <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Total (m³)</div>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
 
           <div style={{
             background: isSofort ? '#f0fdf4' : '#f8fafc',
@@ -363,7 +399,8 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
 
           {/* Truck / transport estimate */}
           {listing.total_quantity > 0 && (() => {
-            const { trucks, factor, looseM3 } = calcTrucks(listing.material, listing.total_quantity)
+            const avail = listing.available_quantity ?? listing.total_quantity
+            const { trucks, factor, looseM3 } = calcTrucks(listing.material, avail)
             return (
               <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>
@@ -378,7 +415,7 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                   {[
-                    ['Volumen (in-situ)', `${listing.total_quantity} m³`],
+                    ['Verfügbar (in-situ)', `${avail} m³`],
                     [`Auflockerungsfaktor (${MAT_LABELS[listing.material] || listing.material})`, `× ${factor}`],
                     ['Loses Volumen', `${looseM3} m³`],
                   ].map(([label, val]) => (
@@ -562,8 +599,13 @@ export default function ListingsWithModal({ listings, userId, matColors, transpo
               {/* Row 3: Stat blocks */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: l.description ? 10 : 0 }}>
                 <div style={{ background: '#f8fafc', borderRadius: 8, padding: '8px 10px' }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Menge</div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>{l.total_quantity} <span style={{ fontSize: 11, fontWeight: 500, color: '#64748b' }}>m³</span></div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Verfügbar</div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: (l.reserved_quantity ?? 0) > 0 ? '#15803d' : '#0f172a' }}>
+                    {l.available_quantity ?? l.total_quantity} <span style={{ fontSize: 11, fontWeight: 500, color: '#64748b' }}>m³</span>
+                  </div>
+                  {(l.reserved_quantity ?? 0) > 0 && (
+                    <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1 }}>von {l.total_quantity} m³</div>
+                  )}
                 </div>
                 <div style={{ background: '#f8fafc', borderRadius: 8, padding: '8px 10px' }}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>Standort</div>
@@ -581,7 +623,8 @@ export default function ListingsWithModal({ listings, userId, matColors, transpo
 
               {/* Row 4: Truck count */}
               {l.total_quantity > 0 && (() => {
-                const { trucks, factor } = calcTrucks(l.material, l.total_quantity)
+                const avail = l.available_quantity ?? l.total_quantity
+                const { trucks, factor } = calcTrucks(l.material, avail)
                 return (
                   <div style={{
                     marginTop: 8, padding: '7px 10px', background: '#f0f9ff',
