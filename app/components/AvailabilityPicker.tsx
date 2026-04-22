@@ -88,10 +88,12 @@ export default function AvailabilityPicker() {
         <label style={labelStyle}>Zeitfenster für Abholung</label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8 }}>
           {[
-            { value: 'ganzer_tag',     label: '☀️ Ganzer Tag (flexibel)' },
-            { value: 'morgens',        label: '🌅 Morgens (7–12 Uhr)' },
-            { value: 'nachmittags',    label: '🌆 Nachmittags (12–17 Uhr)' },
-            { value: 'nach_absprache', label: '📞 Nach Absprache' },
+            { value: 'ganzer_tag',       label: '☀️ Ganzer Tag (flexibel)' },
+            { value: 'morgens',          label: '🌅 Morgens (7–12 Uhr)' },
+            { value: 'nachmittags',      label: '🌆 Nachmittags (12–17 Uhr)' },
+            { value: 'bauzeit_morgens',  label: '🏗️ Bauzeit Morgens (07:30–11:45)' },
+            { value: 'bauzeit_abend',    label: '🏗️ Bauzeit Nachmittags (13:00–16:30)' },
+            { value: 'nach_absprache',   label: '📞 Nach Absprache' },
           ].map(opt => (
             <label key={opt.value} style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',

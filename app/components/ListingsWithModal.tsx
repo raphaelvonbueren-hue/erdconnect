@@ -90,10 +90,12 @@ function availLabel(l: Listing): string {
 }
 
 const WINDOW_LABEL: Record<string, string> = {
-  ganzer_tag: 'Ganzer Tag (flexibel)',
-  morgens: 'Morgens (7–12 Uhr)',
-  nachmittags: 'Nachmittags (12–17 Uhr)',
-  nach_absprache: 'Nach Absprache',
+  ganzer_tag:      'Ganzer Tag (flexibel)',
+  morgens:         'Morgens (7–12 Uhr)',
+  nachmittags:     'Nachmittags (12–17 Uhr)',
+  bauzeit_morgens: 'Bauzeit Morgens (07:30–11:45)',
+  bauzeit_abend:   'Bauzeit Nachmittags (13:00–16:30)',
+  nach_absprache:  'Nach Absprache',
 }
 
 function TransportSection({ listing, companies }: { listing: Listing; companies: TransportCompany[] }) {
