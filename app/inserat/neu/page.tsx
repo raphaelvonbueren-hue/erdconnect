@@ -4,6 +4,7 @@ import { createListing } from '@/app/inserat/actions'
 import Link from 'next/link'
 import AvailabilityPicker from '@/app/components/AvailabilityPicker'
 import QuantityPicker from '@/app/components/QuantityPicker'
+import Header from '@/app/components/Header'
 
 const MATERIALS = [
   { value: 'humus',        label: '🌱 Humus / Muttererde' },
@@ -26,18 +27,7 @@ export default async function NeuesInseratPage({
 
   return (
     <div className="app">
-      <header className="header">
-        <div className="header-inner">
-          <Link href="/" className="brand" style={{ textDecoration:'none', color:'inherit' }}>
-            <span className="logo">🌍</span>
-            <div><h1>ErdConnect</h1><p>Inserat erstellen</p></div>
-          </Link>
-          <nav className="nav">
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/">Zur Karte</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main style={{ maxWidth:720, margin:'40px auto', padding:'0 24px 80px' }}>
         <div style={{ marginBottom:32 }}>
