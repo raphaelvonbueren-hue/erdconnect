@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createListing } from '@/app/inserat/actions'
 import Link from 'next/link'
 import AvailabilityPicker from '@/app/components/AvailabilityPicker'
+import QuantityPicker from '@/app/components/QuantityPicker'
 
 const MATERIALS = [
   { value: 'humus',        label: '🌱 Humus / Muttererde' },
@@ -96,21 +97,7 @@ export default async function NeuesInseratPage({
 
           <div className="form-section">
             <h3 className="form-section-title">📦 4. Menge</h3>
-            <div className="form-row">
-              <div className="form-group" style={{ flex:2 }}>
-                <label>Gesamtmenge <span className="required">*</span></label>
-                <input type="number" name="total_quantity" required min={1} placeholder="100" />
-              </div>
-              <div className="form-group" style={{ flex:1 }}>
-                <label>Einheit</label>
-                <select name="unit">
-                  <option value="m3">m³ (Kubikmeter)</option>
-                  <option value="t">Tonnen</option>
-                  <option value="LKW">LKW-Ladungen</option>
-                  <option value="Stk">Stück</option>
-                </select>
-              </div>
-            </div>
+            <QuantityPicker />
           </div>
 
           <div className="form-section">
