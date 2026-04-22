@@ -20,6 +20,39 @@ type TransportCompany = {
   active: boolean
 }
 
+// Auflockerungsfaktoren: wie viel mehr Volumen das Material im losen Zustand hat
+const SWELL: Record<string, number> = {
+  humus:        1.25,  // Muttererde: +25%
+  aushub:       1.30,  // Aushub/Lehm: +30%
+  kies:         1.10,  // Kies/Schotter: +10%
+  gruenmaterial: 1.40, // Grünmaterial: +40%
+  beton:        1.35,  // Betonabbruch: +35%
+  andere:       1.25,
+}
+const TRUCK_M3 = 12 // m³ Fassungsvermögen Muldenlastwagen (lose)
+
+function calcTrucks(material: string, quantity: number) {
+  const factor = SWELL[material] ?? 1.25
+  const looseM3 = Math.round(quantity * factor * 10) / 10
+  const trucks = Math.ceil(looseM3 / TRUCK_M3)
+  return { trucks, factor, looseM3 }
+}
+
+function TruckBar({ trucks }: { trucks: number }) {
+  const show = Math.min(trucks, 8)
+  const rest = trucks - show
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+      {Array.from({ length: show }).map((_, i) => (
+        <span key={i} style={{ fontSize: 15 }}>🚛</span>
+      ))}
+      {rest > 0 && (
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginLeft: 2 }}>+{rest}</span>
+      )}
+    </span>
+  )
+}
+
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371
   const dLat = (lat2 - lat1) * Math.PI / 180
@@ -328,6 +361,40 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
             </p>
           )}
 
+          {/* Truck / transport estimate */}
+          {listing.total_quantity > 0 && (() => {
+            const { trucks, factor, looseM3 } = calcTrucks(listing.material, listing.total_quantity)
+            return (
+              <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>
+                  🚛 Transportbedarf (Richtwert)
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 28, fontWeight: 800, color: '#0c4a6e' }}>~{trucks}</span>
+                  <span style={{ fontSize: 14, color: '#0369a1', fontWeight: 600 }}>Muldenlastwagen-Fahrten</span>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <TruckBar trucks={trucks} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                  {[
+                    ['Volumen (in-situ)', `${listing.total_quantity} m³`],
+                    [`Auflockerungsfaktor (${MAT_LABELS[listing.material] || listing.material})`, `× ${factor}`],
+                    ['Loses Volumen', `${looseM3} m³`],
+                  ].map(([label, val]) => (
+                    <div key={label} style={{ background: '#e0f2fe', borderRadius: 7, padding: '8px 10px' }}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 2 }}>{label}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0c4a6e' }}>{val}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: '#64748b', marginTop: 8 }}>
+                  Kapazität Muldenlastwagen: {TRUCK_M3} m³ (lose) — Richtwert, je nach Fahrzeugtyp variierend
+                </div>
+              </div>
+            )
+          })()}
+
           {/* Details grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
             {([
@@ -512,9 +579,24 @@ export default function ListingsWithModal({ listings, userId, matColors, transpo
                 </div>
               </div>
 
-              {/* Row 4: Description snippet */}
+              {/* Row 4: Truck count */}
+              {l.total_quantity > 0 && (() => {
+                const { trucks, factor } = calcTrucks(l.material, l.total_quantity)
+                return (
+                  <div style={{
+                    marginTop: 8, padding: '7px 10px', background: '#f0f9ff',
+                    borderRadius: 7, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+                  }}>
+                    <TruckBar trucks={Math.min(trucks, 8)} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#0369a1' }}>ca. {trucks} Fahrten</span>
+                    <span style={{ fontSize: 11, color: '#64748b' }}>à {TRUCK_M3} m³ · Auflockerung ×{factor}</span>
+                  </div>
+                )
+              })()}
+
+              {/* Row 5: Description snippet */}
               {!!l.description && (
-                <p style={{ fontSize: 12, color: '#64748b', margin: '0', lineHeight: 1.5 }}>
+                <p style={{ fontSize: 12, color: '#64748b', margin: '8px 0 0', lineHeight: 1.5 }}>
                   {l.description.length > 90 ? l.description.slice(0, 90) + '…' : l.description}
                 </p>
               )}
