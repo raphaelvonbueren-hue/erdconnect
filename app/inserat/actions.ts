@@ -50,7 +50,7 @@ export async function createListing(formData: FormData) {
     availability_date_to: availType === 'datum' ? (formData.get('availability_date_to') as string || null) : null,
     availability_quarter_from: availType === 'quartal' ? (formData.get('availability_quarter_from') as string || null) : null,
     availability_quarter_to: availType === 'quartal' ? (formData.get('availability_quarter_to') as string || null) : null,
-    availability_window: formData.get('availability_window') as string,
+    availability_window: (formData.getAll('availability_window') as string[]).join(',') || null,
     status: 'active',
   }
 

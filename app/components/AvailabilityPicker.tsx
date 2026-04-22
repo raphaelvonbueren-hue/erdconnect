@@ -100,9 +100,8 @@ export default function AvailabilityPicker() {
               border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer',
               background: '#fff', fontSize: 14,
             }}>
-              <input type="radio" name="availability_window" value={opt.value}
-                defaultChecked={opt.value === 'ganzer_tag'}
-                style={{ accentColor: '#22c55e' }} />
+              <input type="checkbox" name="availability_window" value={opt.value}
+                style={{ accentColor: '#22c55e', width: 16, height: 16 }} />
               {opt.label}
             </label>
           ))}

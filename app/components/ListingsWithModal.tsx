@@ -310,8 +310,12 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
             <div>
               <div style={{ fontWeight: 700, fontSize: 14, color: isSofort ? '#15803d' : '#0f172a' }}>{avail}</div>
               {!!listing.availability_window && (
-                <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>
-                  {WINDOW_LABEL[listing.availability_window as string] || String(listing.availability_window)}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                  {(listing.availability_window as string).split(',').filter(Boolean).map(w => (
+                    <span key={w} style={{ fontSize: 12, color: '#475569', background: '#f1f5f9', borderRadius: 5, padding: '2px 8px' }}>
+                      {WINDOW_LABEL[w] || w}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
