@@ -28,6 +28,25 @@ export async function signUp(formData: FormData) {
   redirect('/auth/verify-email')
 }
 
+export async function resetPassword(formData: FormData) {
+  const supabase = await createClient()
+  const email = formData.get('email') as string
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: (process.env.NEXT_PUBLIC_SITE_URL || 'https://erdconnect.vercel.app') + '/auth/update-password',
+  })
+  if (error) redirect('/auth/reset-password?error=' + encodeURIComponent(error.message))
+  redirect('/auth/reset-password?sent=1')
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({
+    password: formData.get('password') as string,
+  })
+  if (error) redirect('/auth/update-password?error=' + encodeURIComponent(error.message))
+  redirect('/dashboard')
+}
+
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()

@@ -22,7 +22,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             <input type="email" name="email" required placeholder="name@beispiel.ch" />
           </div>
           <div className="form-group">
-            <label>Passwort</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+              <label style={{ margin: 0 }}>Passwort</label>
+              <Link href="/auth/reset-password" style={{ fontSize: 12, color: '#64748b' }}>Passwort vergessen?</Link>
+            </div>
             <input type="password" name="password" required placeholder="Passwort eingeben" />
           </div>
           <button type="submit" className="btn-submit">Einloggen</button>
