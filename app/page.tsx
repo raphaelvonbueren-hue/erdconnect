@@ -38,12 +38,15 @@ export default async function Home({ searchParams }: Props) {
   if (city)   query = query.ilike('location', `%${city}%`)
   if (minQty) query = query.gte('total_quantity', Number(minQty))
 
-  const [{ data: listingsRaw = [] }, { data: transportCompanies = [] }, { data: profiles = [] }, { data: reservations = [] }] = await Promise.all([
+  const [{ data: listingsRaw = [] }, { data: transportCompanies = [] }, { data: profiles = [] }, { data: reservations = [] }, { data: contentRows = [] }] = await Promise.all([
     query,
     supabase.from('transport_companies').select('*').eq('active', true),
     supabase.from('profiles').select('id, is_premium'),
     supabase.from('reservations').select('listing_id, quantity_reserved').in('status', ['pending', 'accepted']),
+    supabase.from('site_content').select('key, content').eq('key', 'home_intro'),
   ])
+
+  const homeIntro = (contentRows ?? []).find(r => r.key === 'home_intro')?.content ?? null
 
   const premiumIds = new Set((profiles ?? []).filter(p => p.is_premium).map(p => p.id))
 
@@ -88,6 +91,26 @@ export default async function Home({ searchParams }: Props) {
       <Header />
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px' }}>
         <FilterBar />
+
+        {homeIntro && (
+          <div style={{
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 100%)',
+            border: '1px solid #bbf7d0', borderRadius: 12,
+            padding: '16px 20px', margin: '4px 0 16px',
+            display: 'flex', gap: 14, alignItems: 'flex-start',
+          }}>
+            <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1 }}>🌍</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#14532d', marginBottom: 4 }}>
+                Was ist ErdConnect?
+              </div>
+              <p style={{ margin: 0, fontSize: 14, color: '#166534', lineHeight: 1.65 }}>
+                {homeIntro}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div style={{ fontSize: 13, color: '#888', textAlign: 'right', margin: '0 0 10px' }}>
           {listings?.length || 0} Ergebnisse
         </div>

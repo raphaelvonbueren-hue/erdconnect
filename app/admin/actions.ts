@@ -51,6 +51,16 @@ export async function deleteTransportCompany(formData: FormData) {
   revalidatePath('/admin/transport')
 }
 
+export async function updateSiteContent(formData: FormData) {
+  await requireAdmin()
+  const admin = createAdminClient()
+  const key = formData.get('key') as string
+  const content = formData.get('content') as string
+  await admin.from('site_content').upsert({ key, content, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+  revalidatePath('/')
+  revalidatePath('/admin/content')
+}
+
 export async function toggleTransportActive(formData: FormData) {
   await requireAdmin()
   const admin = createAdminClient()
