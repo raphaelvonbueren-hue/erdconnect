@@ -18,6 +18,13 @@ export async function createListing(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
+  // Enforce 3-listing limit for free users
+  const { data: profile } = await supabase.from('profiles').select('is_premium').eq('id', user.id).single()
+  if (!profile?.is_premium) {
+    const { count } = await supabase.from('listings').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active')
+    if ((count ?? 0) >= 3) redirect('/inserat/neu?error=' + encodeURIComponent('Free-Konto: max. 3 aktive Inserate. Upgrade auf Premium für unbegrenzte Inserate.'))
+  }
+
   const location = formData.get('location') as string
   const coords = await geocode(location)
 

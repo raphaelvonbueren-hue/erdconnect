@@ -52,6 +52,7 @@ type Listing = {
   latitude?: number | null
   longitude?: number | null
   status?: string
+  is_premium?: boolean
 }
 
 const MAT_COLORS: Record<string, string> = {
@@ -240,7 +241,7 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
           borderBottom: '1px solid #f1f5f9', padding: '16px 24px',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{
               background: matColor, color: '#fff', borderRadius: 5,
               padding: '3px 10px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
@@ -250,6 +251,13 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
               color: listing.type === 'offer' ? '#166534' : '#92400e',
               borderRadius: 5, padding: '3px 10px', fontSize: 11, fontWeight: 600,
             }}>{listing.type === 'offer' ? 'Angebot' : 'Gesuch'}</span>
+            {listing.is_premium && (
+              <span style={{
+                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                color: '#fff', borderRadius: 5, padding: '3px 10px', fontSize: 11, fontWeight: 700,
+                boxShadow: '0 1px 4px rgba(245,158,11,0.4)',
+              }}>👑 Premium</span>
+            )}
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <Link href={`/listing/${listing.id as string}`}
@@ -269,6 +277,17 @@ function ListingModal({ listing, userId, onClose, transportCompanies }: {
           <h1 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 6px', color: '#0f172a', lineHeight: 1.3 }}>
             {listing.title as string}
           </h1>
+
+          {listing.is_premium && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: '#fffbeb', border: '1px solid #fde68a',
+              borderRadius: 8, padding: '6px 12px', marginBottom: 10,
+            }}>
+              <span style={{ fontSize: 14 }}>✓</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#92400e' }}>Verifizierter Anbieter</span>
+            </div>
+          )}
 
           {/* Key facts row */}
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', margin: '14px 0', fontSize: 14, color: '#555' }}>
@@ -407,9 +426,9 @@ export default function ListingsWithModal({ listings, userId, matColors, transpo
           <div key={l.id}
             onClick={() => setSelected(l)}
             style={{
-              background: '#fff', borderRadius: 12, marginBottom: 10,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
-              border: '1px solid #e8edf2',
+              background: l.is_premium ? '#fffdf5' : '#fff', borderRadius: 12, marginBottom: 10,
+              boxShadow: l.is_premium ? '0 2px 8px rgba(245,158,11,0.12)' : '0 1px 3px rgba(0,0,0,0.07)',
+              border: l.is_premium ? '1px solid #fde68a' : '1px solid #e8edf2',
               cursor: 'pointer', transition: 'box-shadow 0.12s, transform 0.12s',
               overflow: 'hidden',
             }}
@@ -423,7 +442,7 @@ export default function ListingsWithModal({ listings, userId, matColors, transpo
             }}
           >
             {/* Coloured top bar */}
-            <div style={{ height: 4, background: color }} />
+            <div style={{ height: 4, background: l.is_premium ? 'linear-gradient(90deg,#fbbf24,#f59e0b)' : color }} />
 
             <div style={{ padding: '14px 16px' }}>
               {/* Row 1: Material label + type + availability */}
@@ -442,6 +461,12 @@ export default function ListingsWithModal({ listings, userId, matColors, transpo
                   }}>
                     {isOffer ? 'Angebot' : 'Gesuch'}
                   </span>
+                  {l.is_premium && (
+                    <span style={{
+                      background: 'linear-gradient(135deg,#fbbf24,#f59e0b)',
+                      color: '#fff', borderRadius: 6, padding: '3px 9px', fontSize: 11, fontWeight: 700,
+                    }}>👑 Premium</span>
+                  )}
                 </div>
                 {avail && (
                   <span style={{

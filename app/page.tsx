@@ -38,14 +38,20 @@ export default async function Home({ searchParams }: Props) {
   if (city)   query = query.ilike('location', `%${city}%`)
   if (minQty) query = query.gte('total_quantity', Number(minQty))
 
-  const [{ data: listingsRaw = [] }, { data: transportCompanies = [] }] = await Promise.all([
+  const [{ data: listingsRaw = [] }, { data: transportCompanies = [] }, { data: profiles = [] }] = await Promise.all([
     query,
     supabase.from('transport_companies').select('*').eq('active', true),
+    supabase.from('profiles').select('id, is_premium'),
   ])
 
-  let listings = listingsRaw ?? []
+  const premiumIds = new Set((profiles ?? []).filter(p => p.is_premium).map(p => p.id))
+
+  let listings = (listingsRaw ?? []).map(l => ({ ...l, is_premium: premiumIds.has(l.user_id) }))
   if (sort === 'termin')
     listings = [...listings].sort((a, b) => availabilityDate(a) - availabilityDate(b))
+
+  // Premium listings always float to the top
+  listings = [...listings.filter(l => l.is_premium), ...listings.filter(l => !l.is_premium)]
 
   const markers = (listings || [])
     .filter((l) => l.latitude && l.longitude)
